@@ -17,12 +17,12 @@ module Highlight =
             | Keyword   of string
             | Comment   of string
             | MLComment of string
-        
-        let commentRegex = Regex("//(.+)?", RegexOptions.Compiled)
+
+        let commentRegex = Regex("///?(.+)?", RegexOptions.Compiled)
         let mlCommentRegex = Regex("(?s)\(\*.+?\*\)", RegexOptions.Compiled)
-        let keywordRegex = Regex("(\ ?( abstract )\ |\ ?( and )\ |\ ?( as )\ |\ ?( assert )\ |\ ?( base )\ |\ ?( begin )\ |\ ?( class )\ |\ ?( default )\ |\ ?( delegate )\ |\ ?( do )\ |\ ?( done )\ |\ ?( downcast )\ |\ ?( downto )\ |\ ?( elif )\ |\ ?( else )\ |\ ?( end )\ |\ ?( exception )\ |\ ?( extern )\ |\ ?( false )\ |\ ?( finally )\ |\ ?( for )\ |\ ?( fun )\ |\ ?( function )\ |\ ?( global)\ |\ ?(if)\ |\ ?(in)\ |\ ?(inherit)\ |\ ?(inline)\ |\ ?(interface)\ |\ ?(internal)\ |\ ?(lazy)\ |\ ?(let)\ |\ ?(let!)\ |\ ?(match)\ |\ ?(member)\ |\ ?(module)\ |\ ?(mutable)\ |\ ?(namespace)\ |\ ?(new)\ |\ ?(not)\ |\ ?(null)\ |\ ?(of)\ |\ ?(open)\ |\ ?(or)\ |\ ?(override)\ |\ ?(private)\ |\ ?(public)\ |\ ?(rec)\ |\ ?(return)\ |\ ?(return!)\ |\ ?(select)\ |\ ?(static)\ |\ ?(struct)\ |\ ?(then)\ |\ ?(to)\ |\ ?(true)\ |\ ?(try)\ |\ ?(type)\ |\ ?(upcast)\ |\ ?(use)\ |\ ?(use!)\ |\ ?(val)\ |\ ?(void)\ |\ ?(when)\ |\ ?(while)\ |\ ?(with)\ |\ ?(yield)\ |\ ?(yield!)\ )",RegexOptions.Compiled)
-        let stringRegex = Regex("(?s)(\"[^\"]+?\"|\"{3}.+?\"{3})", RegexOptions.Compiled)
-    
+        let keywordRegex = Regex("(#else|#endif|#help|#I|#if|#light|#load|#quit|#r|#time|abstract|and|as|assert|base|begin|class|default|delegate|do|done|downcast|downto|elif|else|end|exception|extern|false|finally|for|fun|function|global|if|in|inherit|inline|interface|internal|lazy|let|let!|match|member|module|mutable|namespace|new|not|null|of|open|or|override|private|public|rec|return|return!|select|static|struct|then|to|true|try|type|upcast|use|use!|val|void|when|while|with|yield|yield!)(\ |\n|$)",RegexOptions.Compiled)
+        let stringRegex = Regex("(?s)(\"[^\"\\\]*(?:\\\.[^\"\\\]*)*\"|\"{3}[^\"\\\]\*(?:\\\.[^\"\\\]*)*\"{3})", RegexOptions.Compiled)
+
         let (|ParseRegex|_|) (regex : Regex) str =
             let m = regex.Match str
             match m.Success && m.Index = 0 with
@@ -62,10 +62,9 @@ module Highlight =
             | _                            -> tokenize str.[1 ..] <| (Else <| str.Substring(0, 1)) :: acc
 
         let lineNums (str : String) =
-            let str' = Regex("\n$").Replace(str, "")
-            let count = str'.Split '\n' |> fun x -> x.Length
+            let count = str.Split '\n' |> fun x -> x.Length
             let spans = [for x in 1 .. count -> "<span>" + string x + "</span>"] |> String.concat "<br />"
-            "<div style='margin: 0px; padding: 0px; border: 1px solid lightgray; font-family: Consolas; background-color: #f8f8ff;'><table><tr><td style='padding: 5px; background-color: lightgray;'>" + spans + "</td><td style='vertical-align: top;'>" + str' + "</td></tr></table></div>"
+            "<div style='margin: 0px; padding: 0px; border: 1px solid #ececec; font-family: Consolas; background-color: #f8f8ff; width: auto; overflow: auto;'><table><tr><td style='padding: 5px; background-color: #ececec;'>" + spans + "</td><td style='vertical-align: top;'>" + str + "</td></tr></table><div style='background-color: #ececec; padding: 10px;'>Generated with <a href='http://fslight.apphb.com/' target='_blank'>FSLight</a></div></div>"
 
         let serialize (tokens : Token list) =
             List.foldBack (fun token str ->
@@ -79,7 +78,15 @@ module Highlight =
             |> fun x -> "<pre style='padding: 5px; margin: 0px;'>" + x + "</pre>"
             |> lineNums
 
-        let highlight str = tokenize str [] |> serialize
+        let replaceLtGtAmp str =
+            Regex("&").Replace(str, "&amp;")
+            |> fun x -> Regex("<").Replace(x, "&lt;")
+            |> fun x -> Regex(">").Replace(x, "&gt;")
+            
+        let highlight str =
+            replaceLtGtAmp str
+            |> fun x -> tokenize x []
+            |> serialize
 
         [<Rpc>]
         let format src =
@@ -97,45 +104,22 @@ module Highlight =
         open IntelliFactory.WebSharper.JQuery
 
         let main() =
-            let textArea  = TextArea [Attr.Style "overflow: scroll; word-wrap: normal; height: 300px;"; Attr.Class "span12"]
-            let textArea' = TextArea [Attr.Style "overflow: scroll; word-wrap: normal; height: 300px;"; Attr.Class "span12"]
-            let formatBtn =
-                Button [Attr.Class "btn btn-primary btn-large"; Attr.Style "float: left;"] -- Text "Highlight"
-                |>! OnClick (fun elt _ ->
-                    async {
-                        elt.SetAttribute("disabled", "disabled")
-                        let loaderJq = JQuery.Of("#loader")
-                        loaderJq.Css("visibility", "visible").Ignore
-                        textArea'.Value <- ""
-                        let! result = Server.format textArea.Value
-                        match result with
-                            | Failure      -> JavaScript.Alert "An error occured."
-                            | Success html ->
-                                JQuery.Of("#html-textarea").Text(html).Ignore
-                                JQuery.Of("#html-preview").Html(html).Ignore
-                        loaderJq.Css("visibility", "hidden").Ignore
-                        elt.RemoveAttribute("disabled")
-                    } |> Async.Start)
-            Div [
-                H3 [Text "F# Code"]
-                textArea
-                Div [Attr.Style "padding: 10px;"] -< [
-                    formatBtn
-                    Div [Img [Attr.Style "padding: 15px; padding-left: 0px; visibility: hidden;"; Src "Images/Loader.gif"; Id "loader"]]
-                ]
-                Div [Attr.Style "height: 500px;"] -< [
-                    Div [Attr.Class "tabbable"] -< [
-                        UL [Attr.Class "nav nav-tabs"] -< [
-                            LI [Attr.Class "active"] -< [A [HRef "#html"; HTML5.Attr.Data "toggle" "tab"] -< [Text "HTML"]]
-                            LI [A [HRef "#html-preview"; HTML5.Attr.Data "toggle" "tab"] -< [Text "HTML Preview"]]
-                        ]
-                        Div [Attr.Class "tab-content"] -< [
-                            Div [Attr.Class "tab-pane active"; Id "html"] -- TextArea [Id "html-textarea"; Attr.Style "overflow: scroll; word-wrap: normal; height: 300px;"; Attr.Class "span12"]
-                            Div [Attr.Class "tab-pane"; Id "html-preview"]
-                        ]
-                    ]
-                ]
-            ]
+            Button [Attr.Class "btn btn-primary btn-large"; Attr.Style "float: left;"] -- Text "Highlight"
+            |>! OnClick (fun elt _ ->
+                async {
+                    elt.SetAttribute("disabled", "disabled")
+                    let loaderJq = JQuery.Of("#loader")
+                    loaderJq.Css("visibility", "visible").Ignore
+                    let code = JQuery.Of("#code-textarea").Val() |> string
+                    let! result = Server.format code
+                    match result with
+                        | Failure      -> JavaScript.Alert "An error occured."
+                        | Success html ->
+                            JQuery.Of("#html-textarea").Text(html).Ignore
+                            JQuery.Of("#html-preview").Html(html).Ignore
+                    loaderJq.Css("visibility", "hidden").Ignore
+                    elt.RemoveAttribute("disabled")
+                } |> Async.Start)
 
     type Control() =
         
