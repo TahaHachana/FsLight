@@ -4,7 +4,7 @@ FSLight
 About
 -----
 
-Online F# syntax highlighting tool built with [WebSharper](http://www.websharper.com/), see http://fantomasweb.apphb.com/.
+Online F# syntax highlighting tool built with [WebSharper](http://www.websharper.com/), see http://fslight.apphb.com/.
 
 MIT License
 -----------
