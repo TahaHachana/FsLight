@@ -19,11 +19,12 @@ module Views =
                     Div [new ForkMe.Control()]
                     Div [Class "container"; Id "push"] -< [
                         Home.header
+                        Div [Class "pull-right"; Style "height: 30px;"] -< [new AddThis.Control()]
                         H3 [Text "F# Code"]
-                        TextArea [Id "code-textarea"; Style "overflow: scroll; word-wrap: normal; height: 300px;"; Class "span12"]
-                        Div [Style "padding: 35px; padding-left: 0px"] -< [
+                        TextArea [Id "code-textarea"; Style "overflow: scroll; word-wrap: normal; height: 300px;"; Class "span12"; HTML5.SpellCheck "false"]
+                        Div [Style "padding: 10px 0px 10px 0px; padding-left: 0px"] -< [
                             Div [new Highlight.Control()]
-                            Div [Img [Style "padding-left: 10px; visibility: hidden; margin: 5px;"; Src "Images/Loader.gif"; Id "loader"]]
+                            Div [Img [Style "padding-top: 10px; visibility: hidden;"; Src "Images/Loader.gif"; Id "loader"]]
                         ]
                         Div [Style "height: 500px;"] -< [
                             Div [Class "tabbable"] -< [
@@ -32,7 +33,7 @@ module Views =
                                     LI [A [HRef "#html-preview"; HTML5.Data "toggle" "tab"] -< [Text "HTML Preview"]]
                                 ]
                                 Div [Class "tab-content"] -< [
-                                    Div [Class "tab-pane active"; Id "html"] -< [TextArea [Id "html-textarea"; Style "overflow: scroll; word-wrap: normal; height: 300px;"; Class "span12"]]
+                                    Div [Class "tab-pane active"; Id "html"] -< [TextArea [Id "html-textarea"; Style "overflow: scroll; word-wrap: normal; height: 300px;"; Class "span12"; HTML5.SpellCheck "false"]]
                                     Div [Class "tab-pane"; Id "html-preview"; Style "height: 300px;"]
                                 ]
                             ]

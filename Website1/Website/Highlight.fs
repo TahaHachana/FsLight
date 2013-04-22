@@ -4,7 +4,7 @@ open IntelliFactory.WebSharper
 
 module Highlight =
    
-    type Result = Failure | Success of string
+    type Result = Error | Success of string
 
     module Server =
 
@@ -22,6 +22,7 @@ module Highlight =
         let mlCommentRegex = Regex("(?s)\(\*.+?\*\)", RegexOptions.Compiled)
         let keywordRegex = Regex("(#else|#endif|#help|#I|#if|#light|#load|#quit|#r|#time|abstract|and|as|assert|base|begin|class|default|delegate|do|done|downcast|downto|elif|else|end|exception|extern|false|finally|for|fun|function|global|if|in|inherit|inline|interface|internal|lazy|let|let!|match|member|module|mutable|namespace|new|not|null|of|open|or|override|private|public|rec|return|return!|select|static|struct|then|to|true|try|type|upcast|use|use!|val|void|when|while|with|yield|yield!)(\ |\n|$)",RegexOptions.Compiled)
         let stringRegex = Regex("(?s)(\"[^\"\\\]*(?:\\\.[^\"\\\]*)*\"|\"{3}[^\"\\\]\*(?:\\\.[^\"\\\]*)*\"{3})", RegexOptions.Compiled)
+        let elseRegex = Regex("\w+(\ |\n|$)", RegexOptions.Compiled)
 
         let (|ParseRegex|_|) (regex : Regex) str =
             let m = regex.Match str
@@ -52,6 +53,11 @@ module Highlight =
                 | ParseRegex mlCommentRegex (str, str') -> Some (MLComment str, str')
                 | _                                     -> None
 
+        let (|ParseElse|_|) str =
+            match str with
+                | ParseRegex elseRegex (str, str') -> Some (Else str, str')
+                | _                                     -> None
+
         let rec tokenize str acc =
             match str with
             | ""                           -> acc
@@ -59,12 +65,17 @@ module Highlight =
             | ParseKeyword   (token, str') -> tokenize str' <| token :: acc
             | ParseComment   (token, str') -> tokenize str' <| token :: acc
             | ParseMLComment (token, str') -> tokenize str' <| token :: acc
+            | ParseElse      (token, str') -> tokenize str' <| token :: acc
             | _                            -> tokenize str.[1 ..] <| (Else <| str.Substring(0, 1)) :: acc
+
+//                let m = Regex("(?s)\w+(\ |\n|$)").Match str
+//                let idx = m.Length
+//                tokenize str.[idx ..] <| (Else <| m.Value) :: acc
 
         let lineNums (str : String) =
             let count = str.Split '\n' |> fun x -> x.Length
             let spans = [for x in 1 .. count -> "<span>" + string x + "</span>"] |> String.concat "<br />"
-            "<div style='margin: 0px; padding: 0px; border: 1px solid #ececec; font-family: Consolas; background-color: #f8f8ff; width: auto; overflow: auto;'><table><tr><td style='padding: 5px; background-color: #ececec;'>" + spans + "</td><td style='vertical-align: top;'>" + str + "</td></tr></table><div style='background-color: #ececec; padding: 10px;'>Generated with <a href='http://fslight.apphb.com/' target='_blank'>FSLight</a></div></div>"
+            "<div style='margin: 0px; padding: 0px; border: 1px solid #ececec; font-family: Consolas; background-color: #f8f8ff; width: auto; overflow: auto;'><table><tr><td style='padding: 5px; background-color: #ececec; color: rgb(150, 150, 150);'>" + spans + "</td><td style='vertical-align: top;'>" + str + "</td></tr></table><div style='font-weight: bold; padding: 10px;'>Created with <a href='http://fslight.apphb.com/' target='_blank'>FSLight</a></div></div>"
 
         let serialize (tokens : Token list) =
             List.foldBack (fun token str ->
@@ -72,7 +83,7 @@ module Highlight =
                     match token with
                         | String x                -> "<span style='color: #d14;'>" + x + "</span>"
                         | Keyword x               -> "<span style='color: blue;'>" + x + "</span>"
-                        | Comment x | MLComment x -> "<span style='color: green;'>" + x + "</span>"
+                        | Comment x | MLComment x -> "<span style='color: green; font-style: italic;'>" + x + "</span>"
                         | Else x                  -> x
                 str + token') tokens ""
             |> fun x -> "<pre style='padding: 5px; margin: 0px;'>" + x + "</pre>"
@@ -94,7 +105,7 @@ module Highlight =
                 try
                     let html = highlight src
                     return Success html
-                with _ -> return Failure
+                with _ -> return Error
             }
 
     [<JavaScript>]
@@ -103,23 +114,37 @@ module Highlight =
         open IntelliFactory.WebSharper.Html
         open IntelliFactory.WebSharper.JQuery
 
-        let main() =
-            Button [Attr.Class "btn btn-primary btn-large"; Attr.Style "float: left;"] -- Text "Highlight"
+        let highlightBtn() =
+            Button [Attr.Class "btn btn-primary btn-large"] -- Text "Highlight"
             |>! OnClick (fun elt _ ->
                 async {
                     elt.SetAttribute("disabled", "disabled")
                     let loaderJq = JQuery.Of("#loader")
                     loaderJq.Css("visibility", "visible").Ignore
+                    let htmlJq = JQuery.Of("#html-textarea")
+                    let previewJq = JQuery.Of("#html-preview")
+                    htmlJq.Val("").Ignore
+                    previewJq.Html("").Ignore
                     let code = JQuery.Of("#code-textarea").Val() |> string
                     let! result = Server.format code
-                    match result with
-                        | Failure      -> JavaScript.Alert "An error occured."
-                        | Success html ->
-                            JQuery.Of("#html-textarea").Text(html).Ignore
-                            JQuery.Of("#html-preview").Html(html).Ignore
                     loaderJq.Css("visibility", "hidden").Ignore
+                    match result with
+                        | Error        -> JavaScript.Alert "An error occured."
+                        | Success html ->
+                            htmlJq.Val(html).Click(fun _ _ -> htmlJq.Select().Ignore).Ignore
+                            previewJq.Html(html).Ignore
                     elt.RemoveAttribute("disabled")
                 } |> Async.Start)
+
+        let clearBtn() =
+            Button [Attr.Class "btn btn-large"; Attr.Style "margin-left: 10px;"] -- Text "Clear"
+            |>! OnClick (fun _ _ -> JQuery.Of("#code-textarea").Val("").Ignore)
+
+        let main() =
+            Div [
+                highlightBtn()
+                clearBtn()
+            ]
 
     type Control() =
         

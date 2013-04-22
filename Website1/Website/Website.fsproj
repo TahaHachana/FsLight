@@ -37,6 +37,7 @@
   <Import Project="$(SolutionDir)\.nuget\nuget.targets" />
   <ItemGroup>
     <Compile Include="Utils.fs" />
+    <Compile Include="AddThis.fs" />
     <Compile Include="ForkMe.fs" />
     <Compile Include="Content.fs" />
     <Compile Include="Highlight.fs" />
