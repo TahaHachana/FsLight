@@ -12,51 +12,48 @@ module Highlight =
         open System.Text.RegularExpressions
 
         type Token =
-            | String    of string
+            | Comment   of string
             | Else      of string
             | Keyword   of string
-            | Comment   of string
             | MLComment of string
+            | String    of string
 
-        let commentRegex = Regex("///?(.+)?", RegexOptions.Compiled)
-        let mlCommentRegex = Regex("(?s)\(\*.+?\*\)", RegexOptions.Compiled)
-        let keywordRegex = Regex("(#else|#endif|#help|#I|#if|#light|#load|#quit|#r|#time|abstract|and|as|assert|base|begin|class|default|delegate|do|done|downcast|downto|elif|else|end|exception|extern|false|finally|for|fun|function|global|if|in|inherit|inline|interface|internal|lazy|let|let!|match|member|module|mutable|namespace|new|not|null|of|open|or|override|private|public|rec|return|return!|select|static|struct|then|to|true|try|type|upcast|use|use!|val|void|when|while|with|yield|yield!)(\ |\n|$)",RegexOptions.Compiled)
-        let stringRegex = Regex("(?s)(\"[^\"\\\]*(?:\\\.[^\"\\\]*)*\"|\"{3}[^\"\\\]\*(?:\\\.[^\"\\\]*)*\"{3})", RegexOptions.Compiled)
-        let elseRegex = Regex("\w+(\ |\n|$)", RegexOptions.Compiled)
+        let commentRegex   = Regex("^///?(.+)?", RegexOptions.Compiled)
+        let mlCommentRegex = Regex("(?s)^\(\*.+?\*\)", RegexOptions.Compiled)
+        let keywordRegex   = Regex("^(#else|#endif|#help|#I|#if|#light|#load|#quit|#r|#time|abstract|and|as|assert|base|begin|class|default|delegate|do|done|downcast|downto|elif|else|end|exception|extern|false|finally|for|fun|function|global|if|in|inherit|inline|interface|internal|lazy|let|let!|match|member|module|mutable|namespace|new|not|null|of|open|or|override|private|public|rec|return|return!|select|static|struct|then|to|true|try|type|upcast|use|use!|val|void|when|while|with|yield|yield!)(\ |\n|$)",RegexOptions.Compiled)
+        let stringRegex    = Regex("(?s)^(\"[^\"\\\]*(?:\\\.[^\"\\\]*)*\"|\"{3}[^\"\\\]\*(?:\\\.[^\"\\\]*)*\"{3})", RegexOptions.Compiled)
+        let elseRegex      = Regex("^\w+(\ |\n|$)", RegexOptions.Compiled)
 
         let (|ParseRegex|_|) (regex : Regex) str =
             let m = regex.Match str
-            match m.Success && m.Index = 0 with
+            match m.Success with
                 | false -> None
-                | true  ->
-                    let idx = m.Length
-                    let str' = m.Value
-                    Some (str', str.[idx ..])
+                | true  -> Some (m.Value, str.[m.Length ..])
 
         let (|ParseString|_|) str =
             match str with
                 | ParseRegex stringRegex (str, str') -> Some (String str, str')
-                | _                                  -> None
+                | _ -> None
 
         let (|ParseKeyword|_|) str =
             match str with
                 | ParseRegex keywordRegex (str, str') -> Some (Keyword str, str')
-                | _                                   -> None
+                | _ -> None
 
         let (|ParseComment|_|) str =
             match str with
                 | ParseRegex commentRegex (str, str') -> Some (Comment str, str')
-                | _                                   -> None
+                | _ -> None
 
         let (|ParseMLComment|_|) str =
             match str with
                 | ParseRegex mlCommentRegex (str, str') -> Some (MLComment str, str')
-                | _                                     -> None
+                | _ -> None
 
         let (|ParseElse|_|) str =
             match str with
                 | ParseRegex elseRegex (str, str') -> Some (Else str, str')
-                | _                                     -> None
+                | _ -> None
 
         let rec tokenize str acc =
             match str with
@@ -67,10 +64,6 @@ module Highlight =
             | ParseMLComment (token, str') -> tokenize str' <| token :: acc
             | ParseElse      (token, str') -> tokenize str' <| token :: acc
             | _                            -> tokenize str.[1 ..] <| (Else <| str.Substring(0, 1)) :: acc
-
-//                let m = Regex("(?s)\w+(\ |\n|$)").Match str
-//                let idx = m.Length
-//                tokenize str.[idx ..] <| (Else <| m.Value) :: acc
 
         let lineNums (str : String) =
             let count = str.Split '\n' |> fun x -> x.Length
@@ -89,13 +82,13 @@ module Highlight =
             |> fun x -> "<pre style='padding: 5px; margin: 0px;'>" + x + "</pre>"
             |> lineNums
 
-        let replaceLtGtAmp str =
+        let replaceAmpLtGt str =
             Regex("&").Replace(str, "&amp;")
             |> fun x -> Regex("<").Replace(x, "&lt;")
             |> fun x -> Regex(">").Replace(x, "&gt;")
             
         let highlight str =
-            replaceLtGtAmp str
+            replaceAmpLtGt str
             |> fun x -> tokenize x []
             |> serialize
 
