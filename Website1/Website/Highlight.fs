@@ -68,18 +68,19 @@ module Highlight =
         let lineNums (str : String) =
             let count = str.Split '\n' |> fun x -> x.Length
             let spans = [for x in 1 .. count -> "<span>" + string x + "</span>"] |> String.concat "<br />"
-            "<div style='margin: 0px; padding: 0px; border: 1px solid #ececec; font-family: Consolas; background-color: #f8f8ff; width: auto; overflow: auto;'><table><tr><td style='padding: 5px; background-color: #ececec; color: rgb(150, 150, 150);'>" + spans + "</td><td style='vertical-align: top;'>" + str + "</td></tr></table><div style='font-weight: bold; padding: 10px;'>Created with <a href='http://fslight.apphb.com/' target='_blank'>FSLight</a></div></div>"
+            "<div style='margin: 0px; padding: 0px; border: 1px solid #ececec; font-family: Consolas; background-color: #f5f5f5; width: auto; overflow: auto;'><style type='text/css'>.fs-str {color: #d14;} .fs-key {color: blue;} .fs-com {color: green; font-style: italic;}</style><table><tr><td style='padding: 5px; vertical-align: top; background-color: #ececec; color: rgb(160, 160, 160);'>" + spans + "</td><td style='vertical-align: top; padding: 5px;'>" + str + "</td></tr></table><div style='font-weight: bold; padding: 10px;'>Created with <a href='http://fslight.apphb.com/' target='_blank'>FSLight</a></div></div>"
 
         let serialize (tokens : Token list) =
             List.foldBack (fun token str ->
                 let token' =
                     match token with
-                        | String x                -> "<span style='color: #d14;'>" + x + "</span>"
-                        | Keyword x               -> "<span style='color: blue;'>" + x + "</span>"
-                        | Comment x | MLComment x -> "<span style='color: green; font-style: italic;'>" + x + "</span>"
-                        | Else x                  -> x
+                        | String    x -> "<span class='fs-str'>" + x + "</span>"
+                        | Keyword   x -> "<span class='fs-key'>" + x + "</span>"
+                        | Comment   x
+                        | MLComment x -> "<span class='fs-com'>" + x + "</span>"
+                        | Else      x -> x
                 str + token') tokens ""
-            |> fun x -> "<pre style='padding: 5px; margin: 0px;'>" + x + "</pre>"
+            |> fun x -> "<pre style='margin: 0px;'>" + x + "</pre>"
             |> lineNums
 
         let replaceAmpLtGt str =
