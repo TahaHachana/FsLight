@@ -1,0 +1,78 @@
+﻿#forkme {
+    position: fixed;
+    right: 0px;
+    border: 0;
+    z-index: 1200;
+}
+
+#code, #html {
+    overflow: scroll;
+    word-wrap: normal;
+    height: 300px;
+    width: 100%;
+    border: 1px solid lightgray;
+    white-space: pre;
+}
+
+#btns {
+    height: 80px;
+    margin-top: 10px;
+}
+
+#clear-btn {
+    margin-left: 10px;
+}
+
+#progress-bar {
+    display: none;
+    margin-top: 10px;
+    width: 30%;
+}
+
+.progress-bar {
+    width: 100%;
+}
+
+#html-preview-tab {
+    height: 300px;
+    overflow: auto;
+}
+
+footer div {
+    border-top: 1px solid #eee;
+    padding-top: 20px;
+}
+
+/* See http://twitter.github.com/bootstrap/examples/sticky-footer-navbar.html */
+
+html, body {
+    height: 100%;
+}
+
+.wrap {
+    min-height: 100%;
+    height: auto !important;
+    height: 100%;
+    margin: 0 auto -60px;
+}
+
+#push {
+    padding-top: 70px;
+}
+
+#footer {
+    height: 60px;
+}
+
+#footer {
+    background-color: #f5f5f5;
+}
+
+@media (max-width: 767px) {
+    #footer {
+        margin-left: -20px;
+        margin-right: -20px;
+        padding-left: 20px;
+        padding-right: 20px;
+    }
+}

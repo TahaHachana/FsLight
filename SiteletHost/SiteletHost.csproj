@@ -1,0 +1,147 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration>Release</Configuration>
+    <Platform>AnyCPU</Platform>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{2F931B8C-3EB4-4D22-A20C-406A539F1038}</ProjectGuid>
+    <ProjectTypeGuids>{349c5851-65df-11da-9384-00065b846f21};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>SiteletHost</RootNamespace>
+    <AssemblyName>SiteletHost</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <UseIISExpress>true</UseIISExpress>
+    <IISExpressSSLPort />
+    <IISExpressAnonymousAuthentication />
+    <IISExpressWindowsAuthentication />
+    <IISExpressUseClassicPipelineMode />
+    <OutputPath>bin\</OutputPath>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
+    <RestorePackages>true</RestorePackages>
+  </PropertyGroup>
+  <PropertyGroup>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="FSharp.Core, Version=4.3.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+      <Private>true</Private>
+      <HintPath>$(MSBuildThisFileDirectory)/../packages/FSharp.Core.3.0.0.2/lib/net40/FSharp.Core.dll</HintPath>
+      <SpecificVersion>true</SpecificVersion>
+    </Reference>
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.EnterpriseServices" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Web.ApplicationServices" />
+    <Reference Include="System.Web.DynamicData" />
+    <Reference Include="System.Web.Entity" />
+    <Reference Include="System.Web.Extensions" />
+    <Reference Include="System.Web.Services" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Xml.Linq" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Scripts\*.*" />
+    <Content Include="Scripts\WebSharper\IntelliFactory.Formlet.d.ts" />
+    <Content Include="Scripts\WebSharper\IntelliFactory.Formlet.js" />
+    <Content Include="Scripts\WebSharper\IntelliFactory.Formlet.min.js" />
+    <Content Include="Scripts\WebSharper\IntelliFactory.Html.d.ts" />
+    <Content Include="Scripts\WebSharper\IntelliFactory.JavaScript\Runtime.js" />
+    <Content Include="Scripts\WebSharper\IntelliFactory.JavaScript\Runtime.min.js" />
+    <Content Include="Scripts\WebSharper\IntelliFactory.Reactive.d.ts" />
+    <Content Include="Scripts\WebSharper\IntelliFactory.Reactive.js" />
+    <Content Include="Scripts\WebSharper\IntelliFactory.Reactive.min.js" />
+    <Content Include="Scripts\WebSharper\IntelliFactory.WebSharper.Collections.d.ts" />
+    <Content Include="Scripts\WebSharper\IntelliFactory.WebSharper.Collections.js" />
+    <Content Include="Scripts\WebSharper\IntelliFactory.WebSharper.Collections.min.js" />
+    <Content Include="Scripts\WebSharper\IntelliFactory.WebSharper.Control.d.ts" />
+    <Content Include="Scripts\WebSharper\IntelliFactory.WebSharper.Control.js" />
+    <Content Include="Scripts\WebSharper\IntelliFactory.WebSharper.Control.min.js" />
+    <Content Include="Scripts\WebSharper\IntelliFactory.WebSharper.d.ts" />
+    <Content Include="Scripts\WebSharper\IntelliFactory.WebSharper.Dom.d.ts" />
+    <Content Include="Scripts\WebSharper\IntelliFactory.WebSharper.Ecma.d.ts" />
+    <Content Include="Scripts\WebSharper\IntelliFactory.WebSharper.Formlet.d.ts" />
+    <Content Include="Scripts\WebSharper\IntelliFactory.WebSharper.Formlet.js" />
+    <Content Include="Scripts\WebSharper\IntelliFactory.WebSharper.Formlet.min.js" />
+    <Content Include="Scripts\WebSharper\IntelliFactory.WebSharper.Html.d.ts" />
+    <Content Include="Scripts\WebSharper\IntelliFactory.WebSharper.Html.js" />
+    <Content Include="Scripts\WebSharper\IntelliFactory.WebSharper.Html.min.js" />
+    <Content Include="Scripts\WebSharper\IntelliFactory.WebSharper.Html5.d.ts" />
+    <Content Include="Scripts\WebSharper\IntelliFactory.WebSharper.JQuery.d.ts" />
+    <Content Include="Scripts\WebSharper\IntelliFactory.WebSharper.js" />
+    <Content Include="Scripts\WebSharper\IntelliFactory.WebSharper.min.js" />
+    <Content Include="Scripts\WebSharper\IntelliFactory.WebSharper.Sitelets.d.ts" />
+    <Content Include="Scripts\WebSharper\IntelliFactory.WebSharper.Sitelets.js" />
+    <Content Include="Scripts\WebSharper\IntelliFactory.WebSharper.Sitelets.min.js" />
+    <Content Include="Scripts\WebSharper\IntelliFactory.WebSharper.Testing.d.ts" />
+    <Content Include="Scripts\WebSharper\IntelliFactory.WebSharper.Testing.js" />
+    <Content Include="Scripts\WebSharper\IntelliFactory.WebSharper.Testing.min.js" />
+    <Content Include="Scripts\WebSharper\IntelliFactory.WebSharper.Web.d.ts" />
+    <Content Include="Scripts\WebSharper\IntelliFactory.WebSharper\Json.js" />
+    <Content Include="Scripts\WebSharper\IntelliFactory.WebSharper\Json.min.js" />
+    <Content Include="Scripts\WebSharper\Sitelet.d.ts" />
+    <Content Include="Scripts\WebSharper\Sitelet.js" />
+    <Content Include="Scripts\WebSharper\Sitelet.min.js" />
+    <Content Include="StyleSheets\StyleSheet1.css" />
+    <Content Include="Templates\About.html" />
+    <Content Include="Templates\Error.html" />
+    <Content Include="Templates\Home.html" />
+    <Content Include="Web.config" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <Content Include="packages.config" />
+    <Content Include="Scripts\WebSharper\build.tmp" />
+    <None Include="Properties\PublishProfiles\FsLightFileSystem.pubxml" />
+    <None Include="Web.Release.config">
+      <DependentUpon>Web.config</DependentUpon>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Sitelet\Sitelet.fsproj">
+      <Project>{79be4a2f-7ec1-4cd5-b0f9-b82d130b7745}</Project>
+      <Name>Sitelet</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <PropertyGroup>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
+    <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
+  </PropertyGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(VSToolsPath)\WebApplications\Microsoft.WebApplication.targets" Condition="'$(VSToolsPath)' != ''" />
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v10.0\WebApplications\Microsoft.WebApplication.targets" Condition="false" />
+  <Import Project="WebSharper.targets" Condition="Exists('WebSharper.targets')" />
+  <ProjectExtensions>
+    <VisualStudio>
+      <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}">
+        <WebProjectProperties>
+          <UseIIS>True</UseIIS>
+          <AutoAssignPort>True</AutoAssignPort>
+          <DevelopmentServerPort>0</DevelopmentServerPort>
+          <DevelopmentServerVPath>/</DevelopmentServerVPath>
+          <IISUrl>http://localhost:50920/</IISUrl>
+          <NTLMAuthentication>False</NTLMAuthentication>
+          <UseCustomServer>False</UseCustomServer>
+          <CustomServerUrl>
+          </CustomServerUrl>
+          <SaveServerSettingsInUserFile>False</SaveServerSettingsInUserFile>
+        </WebProjectProperties>
+      </FlavorProperties>
+    </VisualStudio>
+  </ProjectExtensions>
+  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
+  <Import Project="..\packages\WebSharper.2.5.92.21\build\WebSharper.targets" Condition="Exists('..\packages\WebSharper.2.5.92.21\build\WebSharper.targets')" />
+</Project>
